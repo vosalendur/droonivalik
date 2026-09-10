@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Eraisiku ja edasijõudnud harrastaja multirootor-drooni valija. Reeglipõhine soovitusmootor ja 2026-09 seisuga droonikataloog." />
+  <title>Droonivalija — eraisiku multirootor-drooni valik</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Eraisiku multirootor-drooni valija</p>
+        <h1>Leia kasutusviisile sobiv drooniklass ja mudelikandidaadid</h1>
+        <p class="lead">Kaheastmeline soovitusmootor: esmalt välistavad filtrid, seejärel sobivuse skoorimine. V2 lubab vajadusel ka professionaalsemaid droone ning eristab thermal-, low-light- ja N/starlight-öökaameraid. Mudelite ja hinnaklasside andmed on avalike allikate põhjal seisuga <strong>2026-09</strong>.</p>
+      </div>
+      <div class="hero-card" aria-label="Andmestiku staatus">
+        <span class="badge" id="dataStatusBadge">Andmed 2026-09 seisuga</span>
+        <p id="catalogMeta">Laen kataloogi…</p>
+      </div>
+    </header>
+
+    <main class="app-grid">
+      <section class="panel form-panel" aria-labelledby="form-title">
+        <div class="section-heading">
+          <p class="step-label">1. valikuetapp</p>
+          <h2 id="form-title">Kasutusviis ja nõuded</h2>
+        </div>
+
+        <div class="notice">
+          <strong>Vali mitu kasutusviisi.</strong> Rakendus ühendab nõuded: näiteks „reis + perevideo + YouTube” annab kõrgema kaameranõude kui ainult mänguasi.
+        </div>
+
+        <form id="selectorForm">
+          <fieldset>
+            <legend>Kasutusviisid</legend>
+            <div id="useCaseGrid" class="choice-grid"></div>
+          </fieldset>
+
+          <div class="form-row two-cols">
+            <label>
+              Hinnalagi
+              <select id="maxPriceBand" name="maxPriceBand"></select>
+            </label>
+            <label>
+              Hinna käsitlus
+              <select id="strictPriceBand" name="strictPriceBand">
+                <option value="false">hinnalagi — näita ka odavamaid</option>
+                <option value="true">täpne hinnavahemik</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="form-row two-cols">
+            <label>
+              Kaalueelistus
+              <select id="weightPreference" name="weightPreference">
+                <option value="any">vahet pole</option>
+                <option value="prefer_under_250g" selected>eelista kuni 250 g</option>
+                <option value="require_under_250g">nõua kuni 250 g</option>
+                <option value="over_250g_ok">üle 250 g sobib</option>
+              </select>
+            </label>
+            <label>
+              Kasutaja tase
+              <select id="userLevel" name="userLevel">
+                <option value="beginner" selected>algaja</option>
+                <option value="intermediate">keskmine</option>
+                <option value="advanced">edasijõudnu</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="form-row two-cols">
+            <label>
+              Minimaalne tuuleklass
+              <select id="minWindClass" name="minWindClass"></select>
+            </label>
+            <label>
+              Minimaalne kaameraklass
+              <select id="minCameraClass" name="minCameraClass"></select>
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Lisavajadused</legend>
+            <div class="toggle-list">
+              <label class="toggle"><input type="checkbox" id="thermalRequired" /> <span>Termokaamera on kohustuslik</span></label>
+              <label class="toggle"><input type="checkbox" id="nightVisionRequired" /> <span>Öö-/hämaras vaatlusvõime on kohustuslik</span></label>
+              <label class="toggle"><input type="checkbox" id="zoomPreferred" /> <span>Zoom/detailvaatlus on oluline</span></label>
+              <label class="toggle"><input type="checkbox" id="obstacleAvoidancePreferred" checked /> <span>Takistuste vältimine on eelistatud</span></label>
+              <label class="toggle"><input type="checkbox" id="professionalAllowed" /> <span>Luba ka professionaalsemad / enterprise-klassi droonid</span></label>
+            </div>
+          </fieldset>
+
+          <div class="button-row">
+            <button type="submit" class="primary-btn">Näita soovitusi</button>
+            <button type="button" id="resetBtn" class="secondary-btn">Lähtesta</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel results-panel" aria-live="polite" aria-labelledby="results-title">
+        <div class="section-heading with-actions">
+          <div>
+            <p class="step-label">2. valikuetapp</p>
+            <h2 id="results-title">Soovitused</h2>
+          </div>
+          <div class="mini-actions">
+            <button type="button" id="copyLinkBtn" class="text-btn">Kopeeri jagatav link</button>
+            <button type="button" id="downloadBtn" class="text-btn">Laadi tulemus JSON</button>
+          </div>
+        </div>
+
+        <div id="summaryBox" class="summary-box"></div>
+        <div id="regulatoryBox" class="regulatory-box"></div>
+        <div id="resultsList" class="results-list"></div>
+
+        <details class="excluded-details">
+          <summary>Vaata välja jäetud mudelite põhjuseid</summary>
+          <div id="excludedList" class="excluded-list"></div>
+        </details>
+      </section>
+    </main>
+
+    <section class="panel full-width-panel" aria-labelledby="compare-title">
+      <div class="section-heading">
+        <p class="step-label">Võrdlus</p>
+        <h2 id="compare-title">Tulemuste võrdlustabel</h2>
+      </div>
+      <div class="table-wrap">
+        <table id="comparisonTable">
+          <thead>
+            <tr>
+              <th>Mudel</th>
+              <th>Komplekt</th>
+              <th>Sobivus</th>
+              <th>Hinnaklass</th>
+              <th>Kaal</th>
+              <th>Kaamera</th>
+              <th>Tuul</th>
+              <th>Põhjus</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Märkus.</strong> Tööriist ei ole ostu-, õigus- ega lennuohutusalane lõplik nõuanne. Professionaalsemate droonide kuvamine ei tähenda, et nende kasutus oleks igas olukorras eraisikule sobiv või lubatud. Enne ostu kontrolli tegelikku hinda, saadavust, garantiitingimusi, komplekti sisu, õhuruumipiiranguid, käitaja registreerimise nõudeid ja privaatsusreegleid.</p>
+      <p>Versioon: <span id="appVersion">2026-09 MVP</span></p>
+    </footer>
+  </div>
+
+  <script src="data/drones.js"></script>
+  <script src="data/rules.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

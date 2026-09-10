@@ -1,0 +1,193 @@
+{
+  "version": "2026-09-10-v2",
+  "data_status": "2026-09",
+  "description_et": "Kaheastmeline soovitusmootor erakasutaja/prosumer multirootor-drooni valikuks: 1) välistavad filtrid, 2) sobivuse skoorimine. V2 lubab professionaalsemaid droone, kui kasutaja valib eriotstarbelise kasutuse või lubab need käsitsi.",
+  "price_band_order": [
+    "under_350",
+    "350_700",
+    "700_1500",
+    "1500_5000",
+    "over_5000"
+  ],
+  "weight_preference_values": [
+    "any",
+    "prefer_under_250g",
+    "require_under_250g",
+    "over_250g_ok"
+  ],
+  "wind_class_order": [
+    "T0",
+    "T1",
+    "T2",
+    "T3",
+    "T4"
+  ],
+  "camera_class_order": [
+    "K0",
+    "K1",
+    "K2",
+    "K3",
+    "K4",
+    "N"
+  ],
+  "hard_filters": {
+    "exclude_non_consumer_scope": false,
+    "exclude_include_by_default_false_unless_special_need": true,
+    "thermal_required_keeps_only_has_thermal_true": true,
+    "camera_minimum_required": true,
+    "max_budget_required": true,
+    "under_250g_required_keeps_only_under_250g": true,
+    "minimum_wind_class_required": false,
+    "fpv_sport_is_preference_not_hard_filter": true,
+    "professional_scope_allowed_for_special_need": true,
+    "professional_scope_allowed_when_user_opt_in": true,
+    "night_observation_accepts_low_light_or_starlight_or_thermal": true,
+    "night_vision_required_keeps_only_night_capable": true
+  },
+  "use_case_requirements": {
+    "child_learning": {
+      "camera_min": "K0",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T0",
+      "beginner_friendly_required": true,
+      "notes_et": "Lapsele või algajale eelistada odavat, kerget ja vigastusi vähendavat lahendust."
+    },
+    "fpv_beginner": {
+      "camera_min": "K0",
+      "preferred_fpv_types": [
+        "fpv_beginner_kit",
+        "fpv_tiny_whoop",
+        "fpv_cinewhoop",
+        "casual_fpv_optional",
+        "casual_fpv_with_goggles"
+      ],
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T0",
+      "notes_et": "Algõppel on tähtsam odavus, vastupidavus, simulaatori/prillide ökosüsteem ja remonditavus kui foto-video kvaliteet."
+    },
+    "fpv_sport": {
+      "camera_min": "K0",
+      "preferred_fpv_types": [
+        "fpv_sport",
+        "fpv_tiny_whoop"
+      ],
+      "preferred_wind": "T2",
+      "notes_et": "FPV spordi puhul eelistada manuaalrežiimi, väikest latentsust ja remonditavat platvormi; tavaline kaameradroon jääb lisasoovituseks."
+    },
+    "family_video": {
+      "camera_min": "K1",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T1",
+      "beginner_friendly_preferred": true,
+      "notes_et": "Perevideo jaoks piisab sageli stabiliseeritud lainurkkaamerast, aga automaatrežiimid ja turvalisus on olulised."
+    },
+    "travel": {
+      "camera_min": "K1",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T2",
+      "travel_friendly_required": true,
+      "notes_et": "Reisidroonil on väga oluline alla 250 g klass, kokkupandavus, hea aku ja lihtne kaasaskandmine."
+    },
+    "youtube": {
+      "camera_min": "K2",
+      "preferred_wind": "T2",
+      "notes_et": "Sisulooja vajaduste puhul eelistada paremat sensorit, stabiliseerimist, HDR/log/10-bit või muud kvaliteetvideo võimekust."
+    },
+    "property_monitoring": {
+      "camera_min": "K2",
+      "preferred_wind": "T3",
+      "zoom_preferred": true,
+      "notes_et": "Kinnistu vaatlemisel muutuvad oluliseks lennuaeg, tuulevaru, live-pildi kvaliteet ja vajadusel zoom."
+    },
+    "mapping_hobby": {
+      "camera_min": "K2",
+      "preferred_wind": "T2",
+      "notes_et": "Hobikaardistuses on oluline stabiilne GPS-lend, kaamera kvaliteet ja marsruutlennu/waypoint'i võimalus."
+    },
+    "thermal_inspection": {
+      "camera_min": "K4",
+      "thermal_required": true,
+      "preferred_wind": "T2",
+      "notes_et": "Soojalekete tuvastamine eeldab termokaamerat; see viib valiku üldjuhul kallimasse ja raskemasse klassi."
+    },
+    "night_observation": {
+      "camera_min": "K2",
+      "night_vision_required": true,
+      "thermal_preferred": true,
+      "zoom_preferred": true,
+      "preferred_wind": "T2",
+      "notes_et": "Öine/hämaras vaatlus ei eelda alati termokaamerat. Sobivad võivad olla hea low-light EO, N/starlight öökaamera või thermal; enne kasutamist arvesta privaatsuse ja õhuruumipiirangutega."
+    },
+    "hiking_nature": {
+      "camera_min": "K1",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T2",
+      "notes_et": "Matkal ja looduses on põhirõhk portatiivsusel, akudel, RTH töökindlusel ja mõõdukal tuulevarul."
+    },
+    "subject_tracking": {
+      "camera_min": "K1",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T2",
+      "tracking_preferred": true,
+      "notes_et": "Inimese, auto, ratta või paadi jälgimisel eelistada automaatset jälgimist ja takistuste vältimist."
+    },
+    "real_estate_hobby": {
+      "camera_min": "K2",
+      "preferred_wind": "T2",
+      "zoom_preferred": true,
+      "notes_et": "Ehitise või kinnisvara dokumenteerimiseks on kasulik parem EO-kaamera ja teatud juhtudel zoom."
+    },
+    "stem_programming": {
+      "camera_min": "K0",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T0",
+      "notes_et": "STEM/õppe puhul on oluline avatud või õppeks sobiv platvorm, madal hind ja talutav avariirisk."
+    },
+    "indoor_practice": {
+      "camera_min": "K0",
+      "preferred_weight": "under_250g",
+      "preferred_wind": "T0",
+      "notes_et": "Siseruumis sobivad tiny whoop, propellerikaitsega või väga väikesed droonid."
+    },
+    "search_private_land": {
+      "camera_min": "K3",
+      "thermal_preferred": true,
+      "preferred_wind": "T3",
+      "notes_et": "Otsinguks oma maa-alal on kasulik zoom või thermal, pikem lennuaeg ja tugevam live-link."
+    }
+  },
+  "score_weights": {
+    "use_case_match": 40,
+    "budget_match": 25,
+    "camera_match": 20,
+    "weight_match": 15,
+    "wind_match": 10,
+    "beginner_friendly": 10,
+    "travel_friendly": 10,
+    "zoom_preferred": 8,
+    "thermal_preferred": 12,
+    "fpv_type_match": 20,
+    "obstacle_avoidance_preferred": 8,
+    "penalty_missing_thermal_when_required": -30,
+    "penalty_over_250g_when_preferred": -20,
+    "penalty_camera_below_minimum": -25,
+    "penalty_above_budget": -35,
+    "penalty_unsuitable_use_case": -15,
+    "penalty_fpv_sport_non_fpv": -35,
+    "night_vision_match": 18,
+    "penalty_missing_night_capability_when_required": -30,
+    "professional_allowed_match": 6
+  },
+  "result_groups": {
+    "primary_et": "Põhisoovitused",
+    "secondary_et": "Lisasoovitused",
+    "excluded_et": "Välja jäetud"
+  },
+  "ui_notes_et": {
+    "data_status": "Mudelite ja hinnaklasside andmed on avalike allikate põhjal seisuga 2026-09.",
+    "price_warning": "Tegelik hind, komplekti sisu, saadavus ja garantiitingimused tuleb enne ostu üle kontrollida.",
+    "regulatory_warning": "Kontrolli enne lendamist käitaja registreerimise, pädevuse, õhuruumipiirangute, privaatsuse ja VLOS-nõudeid.",
+    "professional_note": "Professionaalsemaid droone näidatakse siis, kui kasutaja lubab need eraldi või valib öövaatluse, termilise vaatluse, kinnistu jälgimise/kaardistuse või otsingu oma maa-alal.",
+    "night_vision_note": "Öövaatluse sobivus võib tulla kolmest allikast: low-light/Night Mode EO, starlight/N-kaamera või termokaamera."
+  }
+}

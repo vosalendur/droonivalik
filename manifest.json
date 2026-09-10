@@ -1,0 +1,10 @@
+{
+  "name": "Droonivalija — eraisiku multirootor-drooni valik",
+  "version": "2026-09-mvp",
+  "data_status": "2026-09",
+  "last_reviewed": "2026-09-10",
+  "type": "static-web-app",
+  "entrypoint": "index.html",
+  "description": "Kaheastmeline reeglipõhine droonivaliku veebirakendus tavatarbijale: välistavad filtrid ja sobivuse skoorimine.",
+  "scope_note": "Eraisiku tarbija/prosumer/FPV multirootor-drooni valik. Mitte professionaalne, äriline ega ametkondlik käitamine."
+}
