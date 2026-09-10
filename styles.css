@@ -216,6 +216,14 @@ label {
   font-weight: 740;
 }
 
+.field-help {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
 select {
   width: 100%;
   margin-top: 7px;

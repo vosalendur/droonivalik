@@ -1,10 +1,10 @@
 {
   "name": "Droonivalija — eraisiku multirootor-drooni valik",
-  "version": "2026-09-mvp",
+  "version": "2026-09-v6",
   "data_status": "2026-09",
   "last_reviewed": "2026-09-10",
   "type": "static-web-app",
   "entrypoint": "index.html",
-  "description": "Kaheastmeline reeglipõhine droonivaliku veebirakendus tavatarbijale: välistavad filtrid ja sobivuse skoorimine.",
-  "scope_note": "Eraisiku tarbija/prosumer/FPV multirootor-drooni valik. Mitte professionaalne, äriline ega ametkondlik käitamine."
+  "description": "Kaheastmeline reeglipõhine droonivaliku veebirakendus tavatarbijale/prosumerile; v6 lisab kasutajale nähtava kaameratüübi valiku, sh 360° panoraamkaamera ja N / Night Vision hämarakaamera.",
+  "scope_note": "Eraisiku tarbija/prosumer/FPV multirootor-drooni valik; sisaldab ka valitud professionaalsemaid/eriotstarbelisi mudeleid, kui kasutaja need lubab või kasutusviis seda eeldab."
 }

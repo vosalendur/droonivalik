@@ -25,7 +25,7 @@ Seejärel ava brauseris `http://localhost:8080`.
 ## Failid
 
 ```text
-droonivaliku-rakendus-2026-09-v2/
+droonivaliku-rakendus-2026-09-v6/
   index.html                 # veebirakenduse põhileht
   styles.css                 # kujundus
   app.js                     # brauseris töötav soovitusmootor ja UI-loogika
@@ -83,3 +83,29 @@ Täiendavat backend’i ei ole vaja.
 - **Mavic 3 klassi droonid on nüüd öise/hämaras vaatluse valikus.** Kataloogis on eraldi DJI Mavic 3E ja DJI Mavic 3 Pro kirjed.
 - **Professionaalsemaid droone ei välistata enam absoluutse filtriga.** Need kuvatakse, kui kasutaja lubab professionaalsemad mudelid või valib eriotstarbelise kasutuse: öövaatlus, termiline vaatlus, kinnistu jälgimine/kaardistamine või otsing oma maa-alal.
 - **Lisatud N-kaamera haru.** Autel EVO Max 4N V2 on kataloogis kui starlight + thermal + LRF vaatlusdroon.
+
+
+## 2026-09-v6 muudatus
+
+- Lisatud DJI Avata platvorm: algne DJI Avata, uuendatud DJI Avata 2 kirje ning lisatud DJI Avata 360.
+- DJI Avata 360 märgitud 360°/low-light video võimega FPV/cinewhoop sisulooja platvormiks, mitte thermal- või zoom-vaatlusdrooni asenduseks.
+- Avata seeria puhul säilitatud hoiatus, et FPV-prillidega lennates tuleb järgida VLOS/vaatleja loogikat ja kohalikke reegleid.
+
+
+## 2026-09-v6 muudatus
+
+- Parrot DISCO on teadlikult jäetud välja, sest see on fixed-wing, mitte multirootor.
+- Lisatud Parroti ANAFI multirootorid: ANAFI, ANAFI FPV, ANAFI Thermal, ANAFI Ai ja ANAFI USA.
+- ANAFI ja ANAFI FPV on lisatud vanemate/saadavust vajavate DJI alternatiividena.
+- ANAFI Thermal ja ANAFI USA on märgitud thermal/öövaatluse eriotstarbelisteks valikuteks.
+- ANAFI Ai on märgitud professionaalsema kaardistus-/kinnistu-/vaatlusdroonina, millel on 4G ja 6× zoom, kuid puudub thermal.
+- Kõigi Parrot kirjete juures on märgitud, et vastav Skycontroller juhtpult on komplektis.
+
+
+## 2026-09-v6 muudatus
+
+- Lisatud kasutajale nähtav valikukriteerium **Kaamera tüüp**.
+- K1–K4 tähiseid ei kuvata enam põhivalikus; need jäävad andmebaasi sisemiseks miinimumvõime tasemeks.
+- Lisatud eraldi valikud **360° vaatenurgaga panoraamkaamera** ja **N / Night Vision hämarakaamera**.
+- Droonikirjetesse lisatud `camera_types`, `has_360_camera`, `has_dedicated_night_camera` ja `camera_type_summary_et`.
+- 360° valik kuvab eeskätt DJI Avata 360 ja Antigravity/Insta360 A1 tüüpi mudeleid.

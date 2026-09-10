@@ -4,13 +4,14 @@
   const catalog = window.DRONE_CATALOG;
   const rules = window.DRONE_RULES;
 
-  const appVersion = "2026-09 v2";
+  const appVersion = "2026-09 v6";
   const defaultAnswers = {
     useCases: ["travel", "family_video"],
     maxPriceBand: "700_1500",
     strictPriceBand: false,
     weightPreference: "prefer_under_250g",
     minWindClass: "auto",
+    cameraTypePreference: "auto",
     minCameraClass: "auto",
     thermalRequired: false,
     nightVisionRequired: false,
@@ -37,7 +38,7 @@
   const strictPriceBandSelect = document.getElementById("strictPriceBand");
   const weightPreferenceSelect = document.getElementById("weightPreference");
   const minWindClassSelect = document.getElementById("minWindClass");
-  const minCameraClassSelect = document.getElementById("minCameraClass");
+  const cameraTypePreferenceSelect = document.getElementById("cameraTypePreference");
   const thermalRequiredInput = document.getElementById("thermalRequired");
   const nightVisionRequiredInput = document.getElementById("nightVisionRequired");
   const zoomPreferredInput = document.getElementById("zoomPreferred");
@@ -85,6 +86,105 @@
 
   function cameraClassOrder() {
     return rules.camera_class_order || ["K0", "K1", "K2", "K3", "K4", "N"];
+  }
+
+  function cameraTypeOptions() {
+    return catalog.camera_type_options || rules.camera_type_options || [
+      { id: "no_camera_or_fpv", label_et: "Kaamerata või lihtne FPV-pilt" },
+      { id: "wide_eo", label_et: "EO lainurkkaamera" },
+      { id: "quality_eo", label_et: "Kvaliteetne EO foto/video kaamera" },
+      { id: "zoom_eo", label_et: "EO lainurk + zoom/detailvaatlus" },
+      { id: "thermal", label_et: "EO + termokaamera" },
+      { id: "night_vision", label_et: "N / Night Vision hämarakaamera" },
+      { id: "panorama_360", label_et: "360° vaatenurgaga panoraamkaamera" }
+    ];
+  }
+
+  function cameraTypeLabel(type) {
+    if (!type || type === "auto") return "automaatne kasutusviisi põhjal";
+    return labelFrom(cameraTypeOptions(), type, type);
+  }
+
+  function cameraClassFriendlyLabel(cameraClass) {
+    return labelFrom(catalog.camera_classes, cameraClass, cameraClass || "—");
+  }
+
+  function cameraTypeToMinimumClass(type) {
+    switch (type) {
+      case "no_camera_or_fpv": return "K0";
+      case "wide_eo": return "K1";
+      case "quality_eo": return "K2";
+      case "zoom_eo": return "K3";
+      case "thermal": return "K4";
+      case "night_vision": return "K2";
+      case "panorama_360": return "K2";
+      default: return null;
+    }
+  }
+
+  function has360Camera(drone) {
+    if (drone.has_360_camera) return true;
+    if (Array.isArray(drone.camera_types) && drone.camera_types.includes("panorama_360")) return true;
+    const haystack = [drone.id, drone.model, drone.kit, drone.camera_summary, ...(drone.selector_tags || [])].join(" ").toLowerCase();
+    return haystack.includes("360");
+  }
+
+  function hasDedicatedNightCamera(drone) {
+    if (drone.has_dedicated_night_camera) return true;
+    const type = String(drone.night_vision_type || "none").toLowerCase();
+    return !["", "none", "false", "puudub", "thermal"].includes(type);
+  }
+
+  function droneCameraTypes(drone) {
+    const types = new Set(Array.isArray(drone.camera_types) ? drone.camera_types : []);
+    if (!types.size) {
+      if (drone.camera_class === "K0") types.add("no_camera_or_fpv");
+      if (isAtOrAboveCamera(drone.camera_class, "K1", drone)) types.add("wide_eo");
+      if (isAtOrAboveCamera(drone.camera_class, "K2", drone)) types.add("quality_eo");
+      if (drone.has_zoom || drone.camera_class === "K3" || drone.camera_class === "K4") types.add("zoom_eo");
+      if (drone.has_thermal) types.add("thermal");
+      if (hasDedicatedNightCamera(drone)) types.add("night_vision");
+      if (has360Camera(drone)) types.add("panorama_360");
+    }
+    return Array.from(types);
+  }
+
+  function cameraTypeMatches(drone, type) {
+    if (!type || type === "auto") return true;
+    switch (type) {
+      case "no_camera_or_fpv": return drone.camera_class === "K0" || ["fpv_tiny_whoop", "fpv_sport", "fpv_beginner_kit"].includes(drone.fpv_type);
+      case "wide_eo": return isAtOrAboveCamera(drone.camera_class, "K1", drone);
+      case "quality_eo": return isAtOrAboveCamera(drone.camera_class, "K2", drone);
+      case "zoom_eo": return Boolean(drone.has_zoom || drone.camera_class === "K3" || drone.camera_class === "K4");
+      case "thermal": return Boolean(drone.has_thermal);
+      case "night_vision": return hasDedicatedNightCamera(drone);
+      case "panorama_360": return has360Camera(drone);
+      default: return true;
+    }
+  }
+
+  function cameraTypeListLabel(drone) {
+    const names = droneCameraTypes(drone).map(cameraTypeLabel);
+    return names.length ? names.join("; ") : cameraClassFriendlyLabel(drone.camera_class);
+  }
+
+  function cameraRequirementLabel(derived) {
+    if (derived.cameraTypePreference && derived.cameraTypePreference !== "auto") {
+      return cameraTypeLabel(derived.cameraTypePreference);
+    }
+    return `vähemalt ${cameraClassFriendlyLabel(derived.minCameraClass)}`;
+  }
+
+  function legacyCameraClassToType(cameraClass) {
+    switch (cameraClass) {
+      case "K0": return "no_camera_or_fpv";
+      case "K1": return "wide_eo";
+      case "K2": return "quality_eo";
+      case "K3": return "zoom_eo";
+      case "K4": return "thermal";
+      case "N": return "night_vision";
+      default: return "auto";
+    }
   }
 
   function scoreWeights() {
@@ -167,11 +267,13 @@
   }
 
   function mergeDerivedRequirements(answers) {
+    const cameraTypePreference = answers.cameraTypePreference || "auto";
     let minCameraClass = answers.minCameraClass && answers.minCameraClass !== "auto" ? answers.minCameraClass : "K0";
     let minWindClass = answers.minWindClass && answers.minWindClass !== "auto" ? answers.minWindClass : undefined;
     let thermalRequired = Boolean(answers.thermalRequired);
     let nightVisionRequired = Boolean(answers.nightVisionRequired);
     let zoomPreferred = Boolean(answers.zoomPreferred);
+    let panorama360Required = false;
     const preferredFpvTypes = new Set();
     let needsBeginnerFriendly = answers.userLevel === "beginner";
     let needsTravelFriendly = false;
@@ -190,10 +292,19 @@
       if (req.notes_et) derivedNotes.push(req.notes_et);
     }
 
+    const cameraTypeMinimum = cameraTypeToMinimumClass(cameraTypePreference);
+    if (cameraTypeMinimum) minCameraClass = higherCamera(minCameraClass, cameraTypeMinimum);
+    if (cameraTypePreference === "thermal") thermalRequired = true;
+    if (cameraTypePreference === "night_vision") nightVisionRequired = true;
+    if (cameraTypePreference === "zoom_eo") zoomPreferred = true;
+    if (cameraTypePreference === "panorama_360") panorama360Required = true;
+
     return {
       thermalRequired,
       nightVisionRequired,
       zoomPreferred,
+      panorama360Required,
+      cameraTypePreference,
       minCameraClass,
       minWindClass,
       preferredFpvTypes,
@@ -207,7 +318,7 @@
     const excluded = [];
     const selectedUseCases = new Set(answers.useCases);
 
-    const specialNeed = derived.thermalRequired || derived.nightVisionRequired || selectedUseCases.has("thermal_inspection") || selectedUseCases.has("night_observation") || selectedUseCases.has("search_private_land") || selectedUseCases.has("property_monitoring") || selectedUseCases.has("mapping_hobby");
+    const specialNeed = derived.thermalRequired || derived.nightVisionRequired || derived.panorama360Required || ["thermal", "night_vision", "panorama_360", "zoom_eo"].includes(derived.cameraTypePreference) || selectedUseCases.has("thermal_inspection") || selectedUseCases.has("night_observation") || selectedUseCases.has("search_private_land") || selectedUseCases.has("property_monitoring") || selectedUseCases.has("mapping_hobby");
 
     if (isProfessionalScope(drone) && !answers.professionalAllowed && !specialNeed) {
       excluded.push("professionaalsem/enterprise-mudel; luba professionaalsemad valikud või vali eriotstarbeline kasutus");
@@ -225,6 +336,14 @@
       excluded.push("öövaatluse/hämaras vaatlusvõime on nõutud, kuid mudelil puudub N/low-light/thermal võime");
     }
 
+    if (derived.panorama360Required && !has360Camera(drone)) {
+      excluded.push("360° vaatenurgaga panoraamkaamera on nõutud, kuid mudelil puudub 360° kaamera");
+    }
+
+    if (derived.cameraTypePreference && derived.cameraTypePreference !== "auto" && !cameraTypeMatches(drone, derived.cameraTypePreference)) {
+      excluded.push(`kaamera tüüp ei vasta valikule: ${cameraTypeLabel(derived.cameraTypePreference)}`);
+    }
+
     const band = dronePriceBand(drone);
     if (answers.maxPriceBand && answers.maxPriceBand !== "any") {
       if (answers.strictPriceBand && !isInExactPriceBand(band, answers.maxPriceBand)) {
@@ -240,7 +359,7 @@
     }
 
     if (!isAtOrAboveCamera(drone.camera_class, derived.minCameraClass, drone)) {
-      excluded.push(`kaameraklass ${drone.camera_class || "puudub"} jääb alla nõude ${derived.minCameraClass}`);
+      excluded.push(`kaamera võime jääb alla nõude: ${cameraRequirementLabel(derived)}`);
     }
 
     return excluded;
@@ -283,10 +402,28 @@
 
     if (isAtOrAboveCamera(drone.camera_class, derived.minCameraClass, drone)) {
       score += weight("camera_match", 20);
-      reasons.push(`täidab kaameranõude ${derived.minCameraClass}`);
+      reasons.push(`täidab kaameranõude: ${cameraRequirementLabel(derived)}`);
     } else {
       score += weight("penalty_camera_below_minimum", -25);
-      warnings.push(`kaamera jääb alla nõude ${derived.minCameraClass}`);
+      warnings.push(`kaamera jääb alla nõude: ${cameraRequirementLabel(derived)}`);
+    }
+
+    if (derived.cameraTypePreference && derived.cameraTypePreference !== "auto") {
+      if (cameraTypeMatches(drone, derived.cameraTypePreference)) {
+        score += weight("camera_type_match", 18);
+        reasons.push(`kaamera tüüp sobib: ${cameraTypeLabel(derived.cameraTypePreference)}`);
+      } else {
+        warnings.push(`kaamera tüüp ei ole valitud tüüp: ${cameraTypeLabel(derived.cameraTypePreference)}`);
+      }
+    }
+
+    if (derived.panorama360Required) {
+      if (has360Camera(drone)) {
+        score += weight("panorama_360_match", 20);
+        reasons.push("360° panoraamkaamera nõue on kaetud");
+      } else {
+        score += weight("penalty_missing_360_camera_when_required", -30);
+      }
     }
 
     if (["prefer_under_250g", "require_under_250g"].includes(answers.weightPreference)) {
@@ -425,7 +562,8 @@
       strictPriceBand: strictPriceBandSelect.value === "true",
       weightPreference: weightPreferenceSelect.value,
       minWindClass: minWindClassSelect.value,
-      minCameraClass: minCameraClassSelect.value,
+      cameraTypePreference: cameraTypePreferenceSelect.value,
+      minCameraClass: cameraTypeToMinimumClass(cameraTypePreferenceSelect.value) || "auto",
       thermalRequired: thermalRequiredInput.checked,
       nightVisionRequired: nightVisionRequiredInput.checked,
       zoomPreferred: zoomPreferredInput.checked,
@@ -443,7 +581,7 @@
     strictPriceBandSelect.value = String(Boolean(answers.strictPriceBand));
     weightPreferenceSelect.value = answers.weightPreference || "any";
     minWindClassSelect.value = answers.minWindClass || "auto";
-    minCameraClassSelect.value = answers.minCameraClass || "auto";
+    cameraTypePreferenceSelect.value = answers.cameraTypePreference || legacyCameraClassToType(answers.minCameraClass) || "auto";
     thermalRequiredInput.checked = Boolean(answers.thermalRequired);
     nightVisionRequiredInput.checked = Boolean(answers.nightVisionRequired);
     zoomPreferredInput.checked = Boolean(answers.zoomPreferred);
@@ -459,7 +597,7 @@
     params.set("strict", answers.strictPriceBand ? "1" : "0");
     params.set("w", answers.weightPreference || "any");
     params.set("wind", answers.minWindClass || "auto");
-    params.set("cam", answers.minCameraClass || "auto");
+    params.set("camtype", answers.cameraTypePreference || "auto");
     params.set("thermal", answers.thermalRequired ? "1" : "0");
     params.set("night", answers.nightVisionRequired ? "1" : "0");
     params.set("zoom", answers.zoomPreferred ? "1" : "0");
@@ -478,6 +616,7 @@
       strictPriceBand: params.get("strict") === "1",
       weightPreference: params.get("w") || "any",
       minWindClass: params.get("wind") || "auto",
+      cameraTypePreference: params.get("camtype") || legacyCameraClassToType(params.get("cam")) || "auto",
       minCameraClass: params.get("cam") || "auto",
       thermalRequired: params.get("thermal") === "1",
       nightVisionRequired: params.get("night") === "1",
@@ -515,12 +654,7 @@
   }
 
   function formatCamera(drone) {
-    if (drone.camera_class === "N" || hasNightCapability(drone)) {
-      const base = drone.camera_class ? `${drone.camera_class} · ${labelFrom(catalog.camera_classes, drone.camera_class, drone.camera_class)}` : "kaameraklass puudub";
-      return `${base} · N/${escapeHtml(drone.night_vision_type || "night")}`.replaceAll("&amp;", "&");
-    }
-    const label = labelFrom(catalog.camera_classes, drone.camera_class, drone.camera_class || "—");
-    return `${drone.camera_class || "—"} · ${label}`;
+    return cameraTypeListLabel(drone);
   }
 
   function sourceSummary(drone) {
@@ -561,6 +695,7 @@
         <p class="card-note"><strong>Kaamera:</strong> ${escapeHtml(drone.camera_summary || "kirjeldus puudub")}</p>
         ${hasNightCapability(drone) && drone.night_vision_summary ? `<p class="card-note"><strong>Öö/hämarus:</strong> ${escapeHtml(drone.night_vision_summary)}</p>` : ""}
         ${drone.zoom_summary ? `<p class="card-note"><strong>Zoom:</strong> ${escapeHtml(drone.zoom_summary)}</p>` : ""}
+        ${drone.controller_note_et ? `<p class="card-note"><strong>Juhtpult:</strong> ${escapeHtml(drone.controller_note_et)}</p>` : ""}
         ${drone.regulatory_note_et ? `<p class="card-note"><strong>Regulatiivne märkus:</strong> ${escapeHtml(drone.regulatory_note_et)}</p>` : ""}
         ${reasons ? `<p class="card-note"><strong>Miks sobib:</strong></p><ul class="reason-list">${reasons}</ul>` : ""}
         ${warnings ? `<p class="card-note"><strong>Tähelepanu:</strong></p><ul class="warning-list">${warnings}</ul>` : ""}
@@ -611,7 +746,7 @@
     const excludedCount = results.filter((r) => r.group === "excluded").length;
     const priceLabel = labelFrom(catalog.price_bands, answers.maxPriceBand, answers.maxPriceBand === "any" ? "hinnalage ei määratud" : answers.maxPriceBand);
     summaryBox.innerHTML = `
-      <strong>Valiku kokkuvõte.</strong> Kasutusviisid: ${escapeHtml(selectedUseCases || "valimata")}. Hinnapiir: ${escapeHtml(priceLabel)}. Tuletatud miinimumnõuded: kaamera ${escapeHtml(derived.minCameraClass)}, tuul ${escapeHtml(derived.minWindClass || "kasutusviisi põhjal")}${derived.thermalRequired ? ", thermal kohustuslik" : ""}${derived.nightVisionRequired ? ", N/low-light/thermal öövaatlus kohustuslik" : ""}${derived.zoomPreferred ? ", zoom eelistatud" : ""}${answers.professionalAllowed ? ", professionaalsemad mudelid lubatud" : ""}. Leitud: ${primaryCount} põhisoovitust, ${secondaryCount} lisasoovitust, ${excludedCount} välistatud mudelit.
+      <strong>Valiku kokkuvõte.</strong> Kasutusviisid: ${escapeHtml(selectedUseCases || "valimata")}. Hinnapiir: ${escapeHtml(priceLabel)}. Tuletatud miinimumnõuded: kaamera ${escapeHtml(cameraRequirementLabel(derived))}, tuul ${escapeHtml(derived.minWindClass || "kasutusviisi põhjal")}${derived.thermalRequired ? ", thermal kohustuslik" : ""}${derived.nightVisionRequired ? ", öö-/hämaras vaatlus kohustuslik" : ""}${derived.panorama360Required ? ", 360° panoraamkaamera kohustuslik" : ""}${derived.zoomPreferred ? ", zoom eelistatud" : ""}${answers.professionalAllowed ? ", professionaalsemad mudelid lubatud" : ""}. Leitud: ${primaryCount} põhisoovitust, ${secondaryCount} lisasoovitust, ${excludedCount} välistatud mudelit.
     `;
   }
 
@@ -668,17 +803,17 @@
   function populateSelects() {
     maxPriceBandSelect.innerHTML = `<option value="any">hinnalage ei määra</option>` + catalog.price_bands.map((band) => `<option value="${escapeHtml(band.id)}">${escapeHtml(band.label_et)}</option>`).join("");
     minWindClassSelect.innerHTML = `<option value="auto">automaatne kasutusviisi põhjal</option>` + catalog.wind_classes.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.id)} — ${escapeHtml(item.label_et)}</option>`).join("");
-    minCameraClassSelect.innerHTML = `<option value="auto">automaatne kasutusviisi põhjal</option>` + catalog.camera_classes.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.id)} — ${escapeHtml(item.label_et)}</option>`).join("");
+    cameraTypePreferenceSelect.innerHTML = `<option value="auto">automaatne kasutusviisi põhjal</option>` + cameraTypeOptions().map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.label_et)}</option>`).join("");
   }
 
   function populateUseCases() {
     useCaseGrid.innerHTML = catalog.use_cases.map((useCase) => {
       const req = useCaseRequirements(useCase.id);
       const noteParts = [];
-      if (req.camera_min) noteParts.push(`kaamera ${req.camera_min}+`);
+      if (req.camera_min) noteParts.push(`kaamera: vähemalt ${cameraClassFriendlyLabel(req.camera_min)}`);
       if (req.preferred_wind) noteParts.push(`tuul ${req.preferred_wind}`);
       if (req.thermal_required) noteParts.push("thermal kohustuslik");
-      if (req.night_vision_required) noteParts.push("N/öövõime");
+      if (req.night_vision_required) noteParts.push("öö-/hämarvõime");
       if (req.zoom_preferred) noteParts.push("zoom eelistatud");
       const note = noteParts.join(" · ") || "eritingimusi ei lisandu";
       return `
