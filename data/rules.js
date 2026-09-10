@@ -1,8 +1,8 @@
 /* Auto-generated from rules.json. Edit the JSON file, then run tools/build-data-js.py. */
 window.DRONE_RULES = {
-  "version": "2026-09-10-v2",
+  "version": "2026-09-10-v6",
   "data_status": "2026-09",
-  "description_et": "Kaheastmeline soovitusmootor erakasutaja/prosumer multirootor-drooni valikuks: 1) välistavad filtrid, 2) sobivuse skoorimine. V2 lubab professionaalsemaid droone, kui kasutaja valib eriotstarbelise kasutuse või lubab need käsitsi.",
+  "description_et": "Kaheastmeline soovitusmootor erakasutaja/prosumer multirootor-drooni valikuks. V6 lisab kasutajasõbraliku kaameratüübi valiku ja eristab EO lainurga, kvaliteetse EO, zoomi, thermali, 360° panoraamkaamera ning N / Night Vision hämarakaamera.",
   "price_band_order": [
     "under_350",
     "350_700",
@@ -43,7 +43,10 @@ window.DRONE_RULES = {
     "professional_scope_allowed_for_special_need": true,
     "professional_scope_allowed_when_user_opt_in": true,
     "night_observation_accepts_low_light_or_starlight_or_thermal": true,
-    "night_vision_required_keeps_only_night_capable": true
+    "night_vision_required_keeps_only_night_capable": true,
+    "camera_type_required_when_selected": true,
+    "panorama_360_required_keeps_only_360_camera": true,
+    "night_vision_camera_type_requires_dedicated_low_light_or_starlight": true
   },
   "use_case_requirements": {
     "child_learning": {
@@ -155,6 +158,16 @@ window.DRONE_RULES = {
       "thermal_preferred": true,
       "preferred_wind": "T3",
       "notes_et": "Otsinguks oma maa-alal on kasulik zoom või thermal, pikem lennuaeg ja tugevam live-link."
+    },
+    "360_video": {
+      "camera_min": "K2",
+      "preferred_fpv_types": [
+        "casual_fpv_with_goggles",
+        "fpv_cinewhoop",
+        "fpv_beginner_kit"
+      ],
+      "preferred_wind": "T2",
+      "notes_et": "360°/immersiivse video puhul eelistada 360° panoraamkaameraga drooni; see on eraldi loominguline videoharu, mitte thermal ega zoom-vaatlus."
     }
   },
   "score_weights": {
@@ -177,7 +190,10 @@ window.DRONE_RULES = {
     "penalty_fpv_sport_non_fpv": -35,
     "night_vision_match": 18,
     "penalty_missing_night_capability_when_required": -30,
-    "professional_allowed_match": 6
+    "professional_allowed_match": 6,
+    "camera_type_match": 18,
+    "panorama_360_match": 20,
+    "penalty_missing_360_camera_when_required": -30
   },
   "result_groups": {
     "primary_et": "Põhisoovitused",
@@ -189,6 +205,54 @@ window.DRONE_RULES = {
     "price_warning": "Tegelik hind, komplekti sisu, saadavus ja garantiitingimused tuleb enne ostu üle kontrollida.",
     "regulatory_warning": "Kontrolli enne lendamist käitaja registreerimise, pädevuse, õhuruumipiirangute, privaatsuse ja VLOS-nõudeid.",
     "professional_note": "Professionaalsemaid droone näidatakse siis, kui kasutaja lubab need eraldi või valib öövaatluse, termilise vaatluse, kinnistu jälgimise/kaardistuse või otsingu oma maa-alal.",
-    "night_vision_note": "Öövaatluse sobivus võib tulla kolmest allikast: low-light/Night Mode EO, starlight/N-kaamera või termokaamera."
-  }
+    "night_vision_note": "Öövaatluse sobivus võib tulla kolmest allikast: low-light/Night Mode EO, starlight/N-kaamera või termokaamera.",
+    "camera_type_note": "Kasutajaliideses kuvatakse kaamerad arusaadavate tüüpidena. K0–K4 jäävad andmebaasi sisemiseks miinimumvõime tasemeks.",
+    "panorama_360_note": "360° panoraamkaamera valik kuvab eeskätt Avata 360 / Antigravity A1 tüüpi droone; see ei asenda zoomi, thermali ega tavalist vaatluskaamerat."
+  },
+  "camera_type_order": [
+    "no_camera_or_fpv",
+    "wide_eo",
+    "quality_eo",
+    "zoom_eo",
+    "thermal",
+    "night_vision",
+    "panorama_360"
+  ],
+  "camera_type_options": [
+    {
+      "id": "no_camera_or_fpv",
+      "label_et": "Kaamerata või lihtne FPV-pilt",
+      "description_et": "Sobib mänguasjaks, siseruumis harjutamiseks või FPV-lennu algõppeks; foto/video kvaliteet ei ole peamine."
+    },
+    {
+      "id": "wide_eo",
+      "label_et": "EO lainurkkaamera",
+      "description_et": "Tavaline stabiliseeritud foto- ja videokaamera ilma olulise zoomita."
+    },
+    {
+      "id": "quality_eo",
+      "label_et": "Kvaliteetne EO foto/video kaamera",
+      "description_et": "Parem sensor, 4K/HDR/log/10-bit või sisulooja jaoks sobivam pildikvaliteet."
+    },
+    {
+      "id": "zoom_eo",
+      "label_et": "EO lainurk + zoom/detailvaatlus",
+      "description_et": "Sobib kinnistu, ehitise või kaugema objekti detailsemaks vaatlemiseks."
+    },
+    {
+      "id": "thermal",
+      "label_et": "EO + termokaamera",
+      "description_et": "Soojuseleke, loomade/objektide leidmine ja soojuskontrasti põhine vaatlus."
+    },
+    {
+      "id": "night_vision",
+      "label_et": "N / Night Vision hämarakaamera",
+      "description_et": "Low-light, Night Mode või starlight-tüüpi öö-/hämaras kasutatav kaamera; ei tähenda automaatselt termokaamerat."
+    },
+    {
+      "id": "panorama_360",
+      "label_et": "360° vaatenurgaga panoraamkaamera",
+      "description_et": "360° video/panoraamkaamera, kus kaader valitakse sageli järeltootmises või immersiivses vaaterežiimis."
+    }
+  ]
 };
